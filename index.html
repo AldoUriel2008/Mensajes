@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Para ti</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Nunito', sans-serif;
+      background-image: url('imagenes/fondo_principal.jpeg');
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      color: #fff;
+      text-align: center;
+    }
+    .overlay {
+      background: rgba(0, 0, 0, 0.4);
+      position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;
+    }
+    
+    /* PANTALLA 1: Botón central */
+    #pantalla-bienvenida {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: absolute;
+      width: 100%; height: 100%;
+      transition: opacity 0.8s ease;
+    }
+    .btn-empezar {
+      background: rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(8px);
+      color: white;
+      border: 1px solid rgba(255, 255, 255, 0.5);
+      font-size: 1.5rem;
+      padding: 15px 40px;
+      border-radius: 50px;
+      cursor: pointer;
+      font-family: 'Nunito', sans-serif;
+      animation: latido 2.5s infinite;
+      transition: 0.3s;
+    }
+    .btn-empezar:hover { background: rgba(255, 255, 255, 0.4); }
+    @keyframes latido {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+      100% { transform: scale(1); }
+    }
+
+    /* PANTALLA 2: El menú de botones (Oculto al inicio) */
+    #pantalla-menu {
+      display: none;
+      opacity: 0;
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(12px);
+      padding: 40px 30px;
+      border-radius: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      width: 90%;
+      max-width: 400px;
+      transition: opacity 0.8s ease;
+    }
+    h1 { margin-bottom: 25px; font-size: 2rem; text-shadow: 1px 1px 5px rgba(0,0,0,0.3); }
+    .btn {
+      display: block; width: 100%; padding: 15px; margin: 12px 0;
+      background: rgba(255, 255, 255, 0.9);
+      color: #333; text-decoration: none; border-radius: 12px;
+      font-weight: 600; font-size: 1.05rem; transition: 0.3s;
+    }
+    .btn:hover { background: #fff; transform: scale(1.03); }
+  </style>
+</head>
+<body>
+  <div class="overlay"></div>
+  
+  <!-- Audio oculto configurado con MorfinaP -->
+  <audio id="musica-fondo" loop>
+    <source src="audios/MorfinaP.mp3" type="audio/mpeg">
+  </audio>
+
+  <!-- Pantalla inicial con un solo botón -->
+  <div id="pantalla-bienvenida">
+    <button class="btn-empezar" id="btn-empezar">Bienvenida corazón  ✨</button>
+  </div>
+
+  <!-- El menú que aparece después -->
+  <div id="pantalla-menu">
+    <h1>Para tí corazón</h1>
+    <a href="audio1.html" class="btn">Introducción</a>
+    <a href="audio2.html" class="btn">Audio 1</a>
+    <a href="audio3.html" class="btn">Audio 2</a>
+    <a href="audio4.html" class="btn">Audio 3</a>
+    <a href="audio5.html" class="btn">Audio 4</a>
+  </div>
+
+  <script>
+    const btnEmpezar = document.getElementById('btn-empezar');
+    const pantallaBienvenida = document.getElementById('pantalla-bienvenida');
+    const pantallaMenu = document.getElementById('pantalla-menu');
+    const musica = document.getElementById('musica-fondo');
+
+    btnEmpezar.addEventListener('click', () => {
+      // 1. Inicia la música a un volumen agradable
+      musica.volume = 0.4;
+      musica.play();
+
+      // 2. Desvanece el botón de bienvenida
+      pantallaBienvenida.style.opacity = '0';
+      
+      // 3. Espera un poquito a que desaparezca y muestra el menú
+      setTimeout(() => {
+        pantallaBienvenida.style.display = 'none';
+        pantallaMenu.style.display = 'block';
+        
+        setTimeout(() => {
+          pantallaMenu.style.opacity = '1';
+        }, 50);
+      }, 800);
+    });
+  </script>
+</body>
+</html>
