@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Rasca y Gana</title>
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;800&display=swap" rel="stylesheet">
-  <!-- Librería para el confeti -->
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -64,7 +63,6 @@
       background: #ffecf2;
     }
 
-    /* CAPA DEL PREMIO QUE ESTÁ DEBAJO DEL GRIS */
     .premio-fondo {
       position: absolute;
       top: 0; left: 0;
@@ -78,7 +76,7 @@
     .premio-fondo img {
       width: 100%;
       height: 100%;
-      object-fit: cover; /* Para que las fotos cuadren perfecto en el rectángulo */
+      object-fit: cover; 
     }
 
     .premio-fondo .texto-fondo {
@@ -96,7 +94,6 @@
       cursor: pointer;
     }
 
-    /* ANIMACIÓN DEL RESULTADO EN EL CENTRO */
     .resultado-pop {
       position: fixed;
       top: 50%; left: 50%;
@@ -138,26 +135,25 @@
       cursor: pointer;
     }
     .btn-mutear {
-        position: fixed; bottom: 20px; right: 20px;
-        background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(8px);
-        color: white; border: 1px solid rgba(255, 255, 255, 0.4);
-        padding: 12px 15px; border-radius: 50%; font-size: 1.5rem;
-        cursor: pointer; transition: 0.3s; z-index: 10;
+      position: fixed; bottom: 20px; right: 20px;
+      background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(8px);
+      color: white; border: 1px solid rgba(255, 255, 255, 0.4);
+      padding: 12px 15px; border-radius: 50%; font-size: 1.5rem;
+      cursor: pointer; transition: 0.3s; z-index: 10;
     }
     .btn-mutear:hover { background: rgba(255, 255, 255, 0.4); }
   </style>
 </head>
 <body>
-    <audio id="musicaFondo" loop autoplay>
-    <source src="Imagenesrasca/audrasca.mp3" type="audio/mpeg">
-    </audio>
-<button class="btn-mutear" id="btn-mutear">🔊</button>
+  <audio id="musicaFondo" loop autoplay>
+    <source src="imagenesrasca/audrasca.mp3" type="audio/mpeg">
+  </audio>
+  <button class="btn-mutear" id="btn-mutear">🔊</button>
   <a href="index.html" class="btn-flotante">← Volver</a>
 
   <div class="tarjeta-contenedor" id="contenedorTarjeta">
     <h1>¿Qué habrá aquí?</h1>
     <div class="rasca-area">
-      <!-- Aquí se inyectará la foto o la frase desde el inicio -->
       <div class="premio-fondo" id="premioFondo"></div>
       <canvas id="lienzoRasca"></canvas>
     </div>
@@ -169,7 +165,6 @@
   </div>
 
   <script>
-    // 1. LAS OPCIONES AL AZAR
     const listaPremios = [
       { tipo: 'frase', valor: 'Te amo de aqui al sol, a pasitos de caracol' },
       { tipo: 'frase', valor: 'Amo tus ojitos' },
@@ -206,11 +201,9 @@
       { tipo: 'foto', valor: 'imagenesrasca/foto21.jpg' }
     ];
 
-    // 2. SELECCIONAR EL PREMIO DESDE EL PRINCIPIO
     const premioElegido = listaPremios[Math.floor(Math.random() * listaPremios.length)];
     const premioFondo = document.getElementById('premioFondo');
 
-    // 3. PONERLO DEBAJO DEL CANVAS ANTES DE QUE RASPE
     if (premioElegido.tipo === 'foto') {
       premioFondo.innerHTML = `<img src="${premioElegido.valor}" alt="Fondo escondido">`;
     } else {
@@ -226,7 +219,6 @@
     canvas.width = 300;
     canvas.height = 150;
 
-    // Pintar la zona gris
     ctx.fillStyle = '#b5b5b5';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     ctx.font = '20px Nunito';
@@ -259,7 +251,6 @@
       ctx.fill();
 
       contadorRaspados++;
-      // Checar cómo va cada 20 raspados para no trabar el celular
       if (contadorRaspados % 20 === 0) {
         verificarPorcentaje();
       }
@@ -273,7 +264,6 @@
       }
       const porcentaje = (transparentes / (pixels.length / 4)) * 100;
       
-      // AHORA TIENE QUE RASPAR EL 85% PARA GANAR
       if (porcentaje > 85 && !completado) {
         completado = true;
         lanzarAnimacion();
@@ -283,7 +273,6 @@
     function lanzarAnimacion() {
       contenedorTarjeta.style.opacity = '0'; 
       
-      // Preparar el mismo premio para la ventana grande
       if (premioElegido.tipo === 'foto') {
         contenidoResultado.innerHTML = `<img src="${premioElegido.valor}" alt="Recuerdo"><div class="texto-premio">¡Mira amorcito! ❤️</div>`;
       } else {
@@ -293,7 +282,6 @@
       setTimeout(() => {
         popResultado.classList.add('activo');
         
-        // Confeti
         confetti({
           particleCount: 150,
           spread: 80,
@@ -310,12 +298,11 @@
     canvas.addEventListener('touchstart', iniciarRaspado, { passive: false });
     canvas.addEventListener('touchmove', raspar, { passive: false });
     window.addEventListener('touchend', terminarRaspado);
-    // Efecto de aparición suave al entrar
+
     window.onload = () => {
       document.body.style.opacity = '1';
     };
 
-    // Efecto de desvanecimiento al tocar el botón de Volver
     const btnRegresar = document.querySelector('.btn-flotante');
     if (btnRegresar) {
       btnRegresar.addEventListener('click', (e) => {
@@ -326,16 +313,24 @@
         }, 500);
       });
     }
-   const musicaFondo = document.getElementById('musicaFondo');
+
+    const musicaFondo = document.getElementById('musicaFondo');
     musicaFondo.volume = 0.25;
 
-    // 1. Recupera el segundo exacto donde se quedó la canción
+    // Configuración para mutear
+    const btnMutear = document.getElementById('btn-mutear');
+    if (btnMutear) {
+      btnMutear.addEventListener('click', () => {
+        musicaFondo.muted = !musicaFondo.muted;
+        btnMutear.textContent = musicaFondo.muted ? '🔇' : '🔊';
+      });
+    }
+
     const tiempoGuardado = localStorage.getItem('minutoCancion');
     if (tiempoGuardado) {
       musicaFondo.currentTime = parseFloat(tiempoGuardado);
     }
 
-    // 2. Guarda el tiempo justo una fracción de segundo antes de recargar la página
     window.addEventListener('beforeunload', () => {
       localStorage.setItem('minutoCancion', musicaFondo.currentTime);
     });
