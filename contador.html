@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nuestro Tiempo</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;800&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    body {
+      font-family: 'Nunito', sans-serif;
+      background-image: url('contador/fondo.jpeg'); /* Sube este fondo a tu carpeta */
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      color: #fff;
+      text-align: center;
+      opacity: 0; 
+      transition: opacity 0.5s ease-in-out;
+    }
+    
+    .overlay {
+      background: rgba(0, 0, 0, 0.6);
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;
+    }
+
+    .btn-flotante {
+      position: fixed; top: 20px; left: 20px;
+      background: rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(8px);
+      color: white; text-decoration: none;
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      padding: 10px 18px; border-radius: 50px;
+      font-weight: 600; z-index: 10;
+    }
+
+    .contador-contenedor {
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(12px);
+      padding: 40px 20px;
+      border-radius: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      width: 90%; max-width: 450px;
+      box-shadow: 0 15px 35px rgba(0,0,0,0.4);
+    }
+
+    .btn-mutear {
+      position: fixed;
+      bottom: 20px; 
+      right: 20px;
+      background: rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(8px);
+      color: white;
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      padding: 12px 15px;
+      border-radius: 50%;
+      font-size: 1.5rem;
+      cursor: pointer;
+      transition: 0.3s;
+      z-index: 10;
+    }
+    .btn-mutear:hover { background: rgba(255, 255, 255, 0.4); }
+    h1 { margin-bottom: 30px; font-size: 1.8rem; text-shadow: 2px 2px 4px rgba(0,0,0,0.5); }
+
+    /* CUADRÍCULA DE LOS NÚMEROS */
+    .tiempo-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+    }
+
+    .bloque-tiempo {
+      background: rgba(0, 0, 0, 0.4);
+      padding: 20px 10px;
+      border-radius: 15px;
+      border: 1px solid rgba(255,255,255,0.2);
+      transition: transform 0.3s;
+    }
+    
+    .bloque-tiempo:hover { transform: scale(1.05); }
+
+    .numero { font-size: 2.5rem; font-weight: 800; color: #ffecf2; text-shadow: 0 0 10px rgba(255,236,242,0.5); }
+    .etiqueta { font-size: 0.9rem; color: #ccc; text-transform: uppercase; letter-spacing: 1px; margin-top: 5px; }
+  
+  </style>
+</head>
+<body>
+    <audio id="musicaFondo" loop autoplay>
+    <source src="contador/audconta1.mp3" type="audio/mpeg">
+  </audio>
+  <button class="btn-mutear" id="btn-mutear">🔊</button>
+    
+  <div class="overlay"></div>
+  <a href="index.html" class="btn-flotante">← Volver</a>
+   
+  <div class="contador-contenedor">
+    <h1>Llevamos...</h1>
+    <div class="tiempo-grid">
+      <div class="bloque-tiempo"><div class="numero" id="dias">0</div><div class="etiqueta">Días</div></div>
+      <div class="bloque-tiempo"><div class="numero" id="horas">0</div><div class="etiqueta">Horas</div></div>
+      <div class="bloque-tiempo"><div class="numero" id="minutos">0</div><div class="etiqueta">Minutos</div></div>
+      <div class="bloque-tiempo"><div class="numero" id="segundos">0</div><div class="etiqueta">Segundos</div></div>
+    </div>
+     <h2>¿Maravilloso no?</h2>
+      <h3>A que si :)</h3>
+  </div>
+
+  <script>
+    
+    // CONFIGURA AQUÍ LA FECHA EXACTA DE SU ANIVERSARIO
+    // Formato: new Date(Año, Mes, Día, Hora, Minuto)
+    // OJO: En JavaScript, los meses se cuentan desde 0 (0 = Enero, 11 = Diciembre).
+    // Por ejemplo, para el 24 de Octubre de 2024 a las 15:30 hrs:
+    const fechaInicio = new Date(2024, 6, 24, 18, 30, 0).getTime();
+
+    function actualizarContador() {
+      const ahora = new Date().getTime();
+      const diferencia = ahora - fechaInicio;
+
+      const dias = Math.floor(diferencia / (1000 * 60 * 60 * 24));
+      const horas = Math.floor((diferencia % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutos = Math.floor((diferencia % (1000 * 60 * 60)) / (1000 * 60));
+      const segundos = Math.floor((diferencia % (1000 * 60)) / 1000);
+
+      document.getElementById('dias').textContent = dias;
+      document.getElementById('horas').textContent = horas;
+      document.getElementById('minutos').textContent = minutos;
+      document.getElementById('segundos').textContent = segundos;
+    }
+
+    // Actualizar cada segundo
+    setInterval(actualizarContador, 1000);
+    actualizarContador();
+    // Efecto de aparición suave al entrar
+    window.onload = () => {
+      document.body.style.opacity = '1';
+    };
+    const musicaFondo = document.getElementById('musicaFondo');
+    musicaFondo.volume = 0.25;
+    
+    // Forzar reproducción por si acaso
+    window.addEventListener('DOMContentLoaded', () => {
+      let iniciarAudio = musicaFondo.play();
+      if (iniciarAudio !== undefined) {
+        iniciarAudio.catch(() => { /* Esperando interacción */ });
+      }
+    });
+
+    const todosLosVideos = document.querySelectorAll('video');
+    todosLosVideos.forEach(video => {
+      video.addEventListener('play', () => {
+        musicaFondo.pause();
+      });
+      video.addEventListener('pause', () => {
+        musicaFondo.play();
+      });
+    });
+    
+    const btnMutear = document.getElementById('btn-mutear');
+    if (btnMutear) {
+      btnMutear.addEventListener('click', () => {
+        musicaFondo.muted = !musicaFondo.muted;
+        btnMutear.textContent = musicaFondo.muted ? '🔇' : '🔊';
+      });
+
+    }
+  </script>
+ 
+</body>
+</html>

@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nuestros Videos</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    body {
+      font-family: 'Nunito', sans-serif;
+      background-image: url('videos/fondo.jpeg'); 
+      background-size: cover;
+      background-position: center;
+      /* background-attachment: fixed; <-- ELIMINADO PARA EVITAR LAG */
+      display: flex; 
+      flex-direction: column;
+      align-items: center; 
+      min-height: 100vh;
+      color: #fff;
+      opacity: 0; 
+      transition: opacity 0.6s ease-in-out;
+      padding: 60px 20px 40px 20px;
+    }
+    
+    .overlay {
+      background: rgba(0, 0, 0, 0.5);
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;
+    }
+
+    /* BOTÓN FLOTANTE PARA REGRESAR A LA GALERÍA */
+    .btn-flotante {
+      position: fixed;
+      background: rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(8px);
+      color: white;
+      text-decoration: none;
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      padding: 10px 18px;
+      border-radius: 50px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.3s;
+      z-index: 10;
+      top: 20px; left: 20px;
+    }
+    .btn-flotante:hover { background: rgba(255, 255, 255, 0.4); }
+    
+    /* BOTÓN PARA SILENCIAR MÚSICA */
+    .btn-mutear {
+      position: fixed;
+      bottom: 20px; 
+      right: 20px;
+      background: rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(8px);
+      color: white;
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      padding: 12px 15px;
+      border-radius: 50%;
+      font-size: 1.5rem;
+      cursor: pointer;
+      transition: 0.3s;
+      z-index: 10;
+    }
+    .btn-mutear:hover { background: rgba(255, 255, 255, 0.4); }
+
+    /* CONTENEDOR ESTILO CRISTAL */
+    .videos-contenedor {
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(5px); /* <-- REDUCIDO DE 12 A 5 PARA EVITAR LAG */
+      padding: 30px 20px;
+      border-radius: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      width: 100%;
+      max-width: 600px;
+      text-align: center;
+    }
+
+    h1 { margin-bottom: 25px; font-size: 2rem; text-shadow: 1px 1px 5px rgba(0,0,0,0.3); }
+
+    /* DISEÑO DE LOS VIDEOS */
+    .grid-videos {
+      display: grid;
+      grid-template-columns: 1fr; 
+      gap: 25px;
+    }
+
+    .video-box {
+      background: rgba(0, 0, 0, 0.3);
+      padding: 15px;
+      border-radius: 15px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    video {
+      width: 100%;
+      border-radius: 10px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+      background: #000; 
+    }
+
+    .video-titulo {
+      margin-top: 12px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #eee;
+    }
+  </style>
+</head>
+<body>
+  
+  <!-- AUDIO Y BOTÓN MOVIDOS AL BODY -->
+  <audio id="musicaFondo" loop autoplay>
+    <source src="videos/audvideos.mp3" type="audio/mpeg">
+  </audio>
+  <button class="btn-mutear" id="btn-mutear">🔊</button>
+    
+  <div class="overlay"></div>
+
+  <!-- Botón para regresar a la página anterior -->
+  <a href="galeria.html" class="btn-flotante" id="btn-regresar">← Volver</a>
+
+  <div class="videos-contenedor">
+    <h1>Proceso de las cosas de la lista</h1>
+    
+    <div class="grid-videos">
+      
+      <!-- CUADRO DE VIDEO 1 -->
+      <div class="video-box">
+        <video controls preload="metadata">
+          <source src="videos/intro.mp4" type="video/mp4">
+        </video>
+        <div class="video-titulo">Intro</div>
+      </div>
+      
+    </div>
+  </div>
+
+  <script>
+    const btnRegresar = document.getElementById('btn-regresar');
+
+    window.onload = () => {
+      document.body.style.opacity = '1';
+    };
+
+    btnRegresar.addEventListener('click', (e) => {
+      e.preventDefault();
+      document.body.style.opacity = '0';
+      setTimeout(() => {
+        window.location.href = btnRegresar.href;
+      }, 500);
+    });
+      
+    const musicaFondo = document.getElementById('musicaFondo');
+    musicaFondo.volume = 0.25;
+    
+    // Forzar reproducción por si acaso
+    window.addEventListener('DOMContentLoaded', () => {
+      let iniciarAudio = musicaFondo.play();
+      if (iniciarAudio !== undefined) {
+        iniciarAudio.catch(() => { /* Esperando interacción */ });
+      }
+    });
+
+    const todosLosVideos = document.querySelectorAll('video');
+    todosLosVideos.forEach(video => {
+      video.addEventListener('play', () => {
+        musicaFondo.pause();
+      });
+      video.addEventListener('pause', () => {
+        musicaFondo.play();
+      });
+    });
+    
+    const btnMutear = document.getElementById('btn-mutear');
+    if (btnMutear) {
+      btnMutear.addEventListener('click', () => {
+        musicaFondo.muted = !musicaFondo.muted;
+        btnMutear.textContent = musicaFondo.muted ? '🔇' : '🔊';
+      });
+    }
+  </script>
+</body>
+</html>

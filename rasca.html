@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Rasca y Gana</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;800&display=swap" rel="stylesheet">
+  <!-- Librería para el confeti -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    body {
+      font-family: 'Nunito', sans-serif;
+      background-image: url('imagenesrasca/fondo.jpeg');
+      background-size: cover;
+      background-position: center;
+      display: flex; 
+      flex-direction: column;
+      align-items: center; 
+      justify-content: center;
+      min-height: 100vh;
+      color: #fff;
+      opacity: 0; 
+      transition: opacity 0.5s ease-in-out;
+    }
+
+    .btn-flotante {
+      position: fixed;
+      background: rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(8px);
+      color: white;
+      text-decoration: none;
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      padding: 10px 18px;
+      border-radius: 50px;
+      font-weight: 600;
+      top: 20px; left: 20px;
+      z-index: 10;
+    }
+
+    .tarjeta-contenedor {
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(12px);
+      padding: 40px 20px;
+      border-radius: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      text-align: center;
+      width: 90%;
+      max-width: 400px;
+      transition: opacity 0.5s;
+    }
+
+    h1 { margin-bottom: 20px; font-size: 1.8rem; text-shadow: 1px 1px 4px rgba(0,0,0,0.4); }
+
+    .rasca-area {
+      position: relative;
+      width: 300px;
+      height: 150px;
+      margin: 0 auto;
+      border-radius: 15px;
+      overflow: hidden;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+      background: #ffecf2;
+    }
+
+    /* CAPA DEL PREMIO QUE ESTÁ DEBAJO DEL GRIS */
+    .premio-fondo {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1;
+    }
+    
+    .premio-fondo img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover; /* Para que las fotos cuadren perfecto en el rectángulo */
+    }
+
+    .premio-fondo .texto-fondo {
+      font-size: 1.3rem;
+      font-weight: 800;
+      color: #770101;
+      padding: 10px;
+    }
+
+    canvas {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      z-index: 2;
+      cursor: pointer;
+    }
+
+    /* ANIMACIÓN DEL RESULTADO EN EL CENTRO */
+    .resultado-pop {
+      position: fixed;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%) scale(0.1);
+      opacity: 0;
+      background: rgba(255, 255, 255, 0.95);
+      padding: 30px;
+      border-radius: 20px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+      text-align: center;
+      z-index: 100;
+      transition: all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      width: 85%;
+      max-width: 350px;
+      pointer-events: none;
+    }
+
+    .resultado-pop.activo {
+      transform: translate(-50%, -50%) scale(1.1);
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .resultado-pop img {
+      width: 100%;
+      border-radius: 12px;
+      margin-bottom: 15px;
+    }
+
+    .texto-premio { font-size: 1.5rem; font-weight: 800; color: #770101; }
+    .btn-reiniciar {
+      margin-top: 20px;
+      background: #770101;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 50px;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+    .btn-mutear {
+        position: fixed; bottom: 20px; right: 20px;
+        background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(8px);
+        color: white; border: 1px solid rgba(255, 255, 255, 0.4);
+        padding: 12px 15px; border-radius: 50%; font-size: 1.5rem;
+        cursor: pointer; transition: 0.3s; z-index: 10;
+    }
+    .btn-mutear:hover { background: rgba(255, 255, 255, 0.4); }
+  </style>
+</head>
+<body>
+    <audio id="musicaFondo" loop autoplay>
+    <source src="Imagenesrasca/audrasca.mp3" type="audio/mpeg">
+    </audio>
+<button class="btn-mutear" id="btn-mutear">🔊</button>
+  <a href="index.html" class="btn-flotante">← Volver</a>
+
+  <div class="tarjeta-contenedor" id="contenedorTarjeta">
+    <h1>¿Qué habrá aquí?</h1>
+    <div class="rasca-area">
+      <!-- Aquí se inyectará la foto o la frase desde el inicio -->
+      <div class="premio-fondo" id="premioFondo"></div>
+      <canvas id="lienzoRasca"></canvas>
+    </div>
+  </div>
+
+  <div class="resultado-pop" id="popResultado">
+    <div id="contenidoResultado"></div>
+    <button class="btn-reiniciar" onclick="location.reload()">¿Otra?...</button>
+  </div>
+
+  <script>
+    // 1. LAS OPCIONES AL AZAR
+    const listaPremios = [
+      { tipo: 'frase', valor: 'Te amo de aqui al sol, a pasitos de caracol' },
+      { tipo: 'frase', valor: 'Amo tus ojitos' },
+      { tipo: 'frase', valor: 'Adoro los dibujos que haces amor' },
+      { tipo: 'frase', valor: 'Me encantan tus cartitas, son todas muy lindas' },
+      { tipo: 'frase', valor: 'Hoy te ves increible mi amor' },
+      { tipo: 'frase', valor: 'Me encanta tu mirada, quisiera perderme todo el dia en ella' },
+      { tipo: 'frase', valor: 'Te adoro muñeca' },
+      { tipo: 'frase', valor: 'Me anloqueces pelirrojita' },
+      { tipo: 'frase', valor: 'Ya quiero verte mi amorcito' },
+      { tipo: 'frase', valor: 'Lo estás haciendo bien amor, sigue así' },
+      { tipo: 'frase', valor: 'No te preocupes ahora amorcito, respira' },
+      { tipo: 'frase', valor: 'Siempre has podido con todo amor, esto no te detendrá' },
+      { tipo: 'foto', valor: 'imagenesrasca/foto1.jpg' },
+      { tipo: 'foto', valor: 'imagenesrasca/foto2.jpg' },
+      { tipo: 'foto', valor: 'imagenesrasca/foto3.jpg' },
+      { tipo: 'foto', valor: 'imagenesrasca/foto4.jpg' },
+      { tipo: 'foto', valor: 'imagenesrasca/foto5.jpg' },
+      { tipo: 'foto', valor: 'imagenesrasca/foto6.jpg' },
+      { tipo: 'foto', valor: 'imagenesrasca/foto7.jpg' },
+      { tipo: 'foto', valor: 'imagenesrasca/foto8.jpg' },
+      { tipo: 'foto', valor: 'imagenesrasca/foto9.jpg' },
+      { tipo: 'foto', valor: 'imagenesrasca/foto10.jpg' },
+      { tipo: 'foto', valor: 'imagenesrasca/foto11.jpg' },
+      { tipo: 'foto', valor: 'imagenesrasca/foto12.jpg' },
+      { tipo: 'foto', valor: 'imagenesrasca/foto13.jpg' },
+      { tipo: 'foto', valor: 'imagenesrasca/foto14.jpg' },
+      { tipo: 'foto', valor: 'imagenesrasca/foto15.jpg' },
+      { tipo: 'foto', valor: 'imagenesrasca/foto16.jpg' },
+      { tipo: 'foto', valor: 'imagenesrasca/foto17.jpg' },
+      { tipo: 'foto', valor: 'imagenesrasca/foto18.jpg' },
+      { tipo: 'foto', valor: 'imagenesrasca/foto19.jpg' },
+      { tipo: 'foto', valor: 'imagenesrasca/foto20.jpg' },
+      { tipo: 'foto', valor: 'imagenesrasca/foto21.jpg' }
+    ];
+
+    // 2. SELECCIONAR EL PREMIO DESDE EL PRINCIPIO
+    const premioElegido = listaPremios[Math.floor(Math.random() * listaPremios.length)];
+    const premioFondo = document.getElementById('premioFondo');
+
+    // 3. PONERLO DEBAJO DEL CANVAS ANTES DE QUE RASPE
+    if (premioElegido.tipo === 'foto') {
+      premioFondo.innerHTML = `<img src="${premioElegido.valor}" alt="Fondo escondido">`;
+    } else {
+      premioFondo.innerHTML = `<div class="texto-fondo">${premioElegido.valor}</div>`;
+    }
+
+    const canvas = document.getElementById('lienzoRasca');
+    const ctx = canvas.getContext('2d');
+    const contenedorTarjeta = document.getElementById('contenedorTarjeta');
+    const popResultado = document.getElementById('popResultado');
+    const contenidoResultado = document.getElementById('contenidoResultado');
+    
+    canvas.width = 300;
+    canvas.height = 150;
+
+    // Pintar la zona gris
+    ctx.fillStyle = '#b5b5b5';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.font = '20px Nunito';
+    ctx.fillStyle = '#7a7a7a';
+    ctx.textAlign = 'center';
+    ctx.fillText('Raspa con tu dedo', canvas.width / 2, canvas.height / 2 + 7);
+
+    let presionado = false;
+    let completado = false;
+    let contadorRaspados = 0;
+
+    function obtenerCoordenadas(e) {
+      const rect = canvas.getBoundingClientRect();
+      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+      const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+      return { x: clientX - rect.left, y: clientY - rect.top };
+    }
+
+    function iniciarRaspado(e) { presionado = true; raspar(e); }
+    function terminarRaspado() { presionado = false; }
+
+    function raspar(e) {
+      if (!presionado || completado) return;
+      e.preventDefault();
+      const pos = obtenerCoordenadas(e);
+      
+      ctx.globalCompositeOperation = 'destination-out';
+      ctx.beginPath();
+      ctx.arc(pos.x, pos.y, 18, 0, Math.PI * 2);
+      ctx.fill();
+
+      contadorRaspados++;
+      // Checar cómo va cada 20 raspados para no trabar el celular
+      if (contadorRaspados % 20 === 0) {
+        verificarPorcentaje();
+      }
+    }
+
+    function verificarPorcentaje() {
+      const pixels = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+      let transparentes = 0;
+      for (let i = 3; i < pixels.length; i += 4) {
+        if (pixels[i] === 0) transparentes++;
+      }
+      const porcentaje = (transparentes / (pixels.length / 4)) * 100;
+      
+      // AHORA TIENE QUE RASPAR EL 85% PARA GANAR
+      if (porcentaje > 85 && !completado) {
+        completado = true;
+        lanzarAnimacion();
+      }
+    }
+
+    function lanzarAnimacion() {
+      contenedorTarjeta.style.opacity = '0'; 
+      
+      // Preparar el mismo premio para la ventana grande
+      if (premioElegido.tipo === 'foto') {
+        contenidoResultado.innerHTML = `<img src="${premioElegido.valor}" alt="Recuerdo"><div class="texto-premio">¡Mira amorcito! ❤️</div>`;
+      } else {
+        contenidoResultado.innerHTML = `<div class="texto-premio">${premioElegido.valor}</div>`;
+      }
+
+      setTimeout(() => {
+        popResultado.classList.add('activo');
+        
+        // Confeti
+        confetti({
+          particleCount: 150,
+          spread: 80,
+          origin: { y: 0.6 },
+          colors: ['#d10047', '#ffecf2', '#ffffff'],
+          disableForReducedMotion: true
+        });
+      }, 300);
+    }
+
+    canvas.addEventListener('mousedown', iniciarRaspado);
+    canvas.addEventListener('mousemove', raspar);
+    window.addEventListener('mouseup', terminarRaspado);
+    canvas.addEventListener('touchstart', iniciarRaspado, { passive: false });
+    canvas.addEventListener('touchmove', raspar, { passive: false });
+    window.addEventListener('touchend', terminarRaspado);
+    // Efecto de aparición suave al entrar
+    window.onload = () => {
+      document.body.style.opacity = '1';
+    };
+
+    // Efecto de desvanecimiento al tocar el botón de Volver
+    const btnRegresar = document.querySelector('.btn-flotante');
+    if (btnRegresar) {
+      btnRegresar.addEventListener('click', (e) => {
+        e.preventDefault();
+        document.body.style.opacity = '0';
+        setTimeout(() => {
+          window.location.href = btnRegresar.href;
+        }, 500);
+      });
+    }
+   const musicaFondo = document.getElementById('musicaFondo');
+    musicaFondo.volume = 0.25;
+
+    // 1. Recupera el segundo exacto donde se quedó la canción
+    const tiempoGuardado = localStorage.getItem('minutoCancion');
+    if (tiempoGuardado) {
+      musicaFondo.currentTime = parseFloat(tiempoGuardado);
+    }
+
+    // 2. Guarda el tiempo justo una fracción de segundo antes de recargar la página
+    window.addEventListener('beforeunload', () => {
+      localStorage.setItem('minutoCancion', musicaFondo.currentTime);
+    });
+
+  </script>
+</body>
+</html>
